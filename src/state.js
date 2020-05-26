@@ -174,4 +174,21 @@ state.view_prototype.fetchRelatedLists = state.model_prototype.fetchRelatedLists
     return false;
 }
 
+state.view_prototype.listenPairOnce = state.model_prototype.listenPairOnce = state.collection_prototype.listenPairOnce = function(l1, l2) {
+    this.listenToOnce(l1[0], l1[1], _.bind(_.partial(function(l1, l2) {
+        var args = _.toArray(arguments);
+        args.shift();args.shift();
+
+        this.stopListening(l2[0], l2[1], l2[2]);
+        l1[2].apply(this, args);
+    }, l1, l2), this));
+    this.listenToOnce(l2[0], l2[1], _.bind(_.partial(function(l1, l2) {
+        var args = _.toArray(arguments);
+        args.shift();args.shift();
+        
+        this.stopListening(l1[0], l1[1], l1[2]);
+        l2[2].apply(this, args);
+    }, l1, l2), this));
+};
+
 export default state;
