@@ -14,42 +14,23 @@ formatter.model.formatMe = function () {
 formatter.model.formatData = function (data, options, loadOrSave = 0) {
     if (data && 'format' in this && typeof this.format === 'object' && _.size(this.format) > 0) {
         var field;
-//        console.log(data);
+        
         for (field in this.format) {
             let fieldFormatName = /\w+\[/.test(field) ? field.replace(/^(\w+)\[\d+\]/, '$1[]') : field;
             let fieldList;
 
-//            console.log(fieldFormatName);
-//            console.log(!(/.+\[\w+\]\[\d*\]/.test(fieldFormatName)));
-//            continue;
             if (!(/.+\[\w+\]\[\d*\]/.test(fieldFormatName))) {
                 let fieldMatch = /^\w+\[/.test(field) ? fieldFormatName.match(/^\w+\[/)[0] : field;
-
-//                console.log(fieldFormatName);
-//                console.log('-- lets see simple');
-//                console.log(fieldMatch);
-
-                fieldList = /^\w+\[/.test(field) ? this.checkPartialKeyAttrExistence(fieldMatch, data) : [fieldMatch];
-//                console.log(fieldList);
+                fieldList = /^\w+\[/.test(field) ? _.deepKeySearch(fieldFormatName, data) : [fieldMatch];
             } else {
                 fieldFormatName = /\[\w+\]\[\d+\]/.test(fieldFormatName) ? fieldFormatName.replace(/\[(\w+)\]\[\d+\]/, '[$1][]') : fieldFormatName;
                 let fieldMatch = fieldFormatName.match(/.+\[\w+\]\[\]\[/)[0];
 
-//                console.log('-- lets see recursive');
-//                console.log(fieldMatch);
-//                console.log('-- my results below');
-//                fieldList = /.+\[\w+\]\[\]/.test(field) ? this.checkPartialKeyAttrExistence(fieldMatch, data) : [field];
-                fieldList = this.checkPartialKeyAttrExistence(fieldMatch, data);
-//                console.log('--ended in: ');
-//                console.log(fieldList);
+                fieldList = _.deepKeySearch(fieldFormatName, data);
             }
 
             for (let x in fieldList) {
-                let fieldItem = /^\w+\[/.test(fieldList[x]) ? fieldList[x] + field.match(/\[\w+\]$/)[0] : fieldList[x];
-//                if(/insumo/.test(field)) {
-//                    console.log('--');
-//                    console.log(field);
-//                    console.log(fieldItem);
+                let fieldItem = fieldList[x];
 //                }
                 data = this.formatDataItem(fieldItem, loadOrSave, fieldFormatName, data, options);
             }
@@ -66,7 +47,10 @@ formatter.model.formatDataItem = function (field, m=0, fieldFormatName, data, op
     var value = this.formatItem(field, m, data, format);
     
     if(typeof value !== 'undefined') {
-        data[field] = value;
+        var o = {};
+        o[field] = value;
+        o = this.createJsonStack(o);
+        data = _.defaults2(o, data);
     }
 
     return data;
@@ -82,7 +66,7 @@ formatter.model.formatItem = function (field, m, data, format) {
     typeof data === 'undefined' && (data = this.attributes);
     typeof format === 'undefined' && (format = this.format[field]);
 
-    var value = front.format(data[field], format, m);
+    var value = front.format(_.deepValueSearch(field, data), format, m);
     return value;
 }
 

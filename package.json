@@ -2,7 +2,7 @@
   "name": "backbone-99xp",
   "description": "-",
   "author": "Bruno Foggia",
-  "version": "0.2.0-beta",
+  "version": "0.3.0-beta",
   "browser": "src/backbone.js",
   "main": "src/backbone.js",
   "module": "src/backbone.js",

@@ -64,6 +64,8 @@ bbx.view.prototype.preinitialize = bbx.collection.prototype.preinitialize = bbx.
 
 // router
 bbx.router = router;
+
+// security
 bbx.view.Shield = function(options={}) {
     router.setShield(this.prototype.className, options);
     return this;
