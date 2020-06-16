@@ -5,6 +5,7 @@
  */
  import Bb from 'backbone';
  import _ from 'underscore-99xp';
+import front from 'front-99xp';
 
 var state = {model: {}, collection: {}, view: {}, model_prototype: {}, collection_prototype: {}, view_prototype: {}};
 
@@ -129,11 +130,11 @@ state.view_prototype.addRelatedList = state.model_prototype.addRelatedList = sta
     state._relatedListTimer = !state._relatedListTimer || parseInt((new Date).format('ddHHmmss') , 10)-5 > state._relatedListTimer ? parseInt((new Date).format('ddHHmmss') , 10): state._relatedListTimer;
     var nameTimed = [name, state._relatedListTimer].join('-');
 //    console.log(state._relatedListTimer);
-    return this.relatedLists[name] = state.locator.getListItem(obj instanceof Bb.Model ? 'iModel': 'iCollection', nameTimed, ()=>obj);
+    return this.relatedLists[name] = front.locator.getListItem(obj instanceof Bb.Model ? 'iModel': 'iCollection', nameTimed, ()=>obj);
 }
 
 state.view_prototype.storeRelatedList = state.model_prototype.storeRelatedList = state.collection_prototype.storeRelatedList = function (name, obj, replace=false) {
-    return this.relatedLists[name] = state.locator.getListItem(obj instanceof Bb.Model ? 'iModel': 'iCollection', name, ()=>obj, replace);
+    return this.relatedLists[name] = front.locator.getListItem(obj instanceof Bb.Model ? 'iModel': 'iCollection', name, ()=>obj, replace);
 }
 
 state.view_prototype._fetchRelatedFirst = state.model_prototype._fetchRelatedFirst = state.collection_prototype._fetchRelatedFirst = true;
