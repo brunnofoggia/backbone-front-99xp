@@ -31,6 +31,7 @@ var router = new (Bb.Router.extend({
     routes: {
         "": "loadView",
     },
+    routesAliases: {},
     checkViewAccessChanged: false,
     authType: {
         public: 0,
@@ -66,21 +67,31 @@ var router = new (Bb.Router.extend({
                 regexp = new RegExp (str);
                 let data = regexp.exec(path);
                 if(data !== null) {
-                    this.routeData = data.groups;
-                    this.routeData.path = path;
-                    return this[loader](data.groups);
+                    data.groups.path = path;
+                    return this[loader](this.setRouteData(data.groups));
                 }
             }
         }
     },
-    loadView(data) {
+    setRouteData(data) {
+        this.routeData = data;
+
         var viewName = [(data.module && data.module!=='null' ? data.module : this.defaultViewName)];
         (data.suffix) && viewName.push(data.suffix);
         this.routeData.viewName = viewName.join('-').camelize();
-        if(!front.locator.getListItem('view', this.routeData.viewName)) {
-            front.loadView(this.routeData.viewName, (vn)=>this.checkView(vn, data.id));
+        this.routeData.viewAlias = this.routeData.viewName;
+        
+        if(this.routesAliases[this.routeData.viewName]) {
+            this.routeData.viewName = this.routesAliases[this.routeData.viewName];
+        }
+
+        return this.routeData;
+    },
+    loadView(data) {
+        if(!front.locator.getListItem('view', data.viewName)) {
+            front.loadView(data.viewName, (vn)=>this.checkView(vn, data.id));
         } else {
-            this.checkView(this.routeData.viewName, data.id);
+            this.checkView(data.viewName, data.id);
         }
     },
     setNames(viewName) {
@@ -88,6 +99,7 @@ var router = new (Bb.Router.extend({
         view.prototype.moduleName = this.routeData.module.camelize();
         view.prototype.modulePath = this.routeData.module;
         view.prototype.viewPath = this.routeData.path;
+        view.prototype.viewAlias = this.routeData.viewAlias;
         
         return view;
     },
