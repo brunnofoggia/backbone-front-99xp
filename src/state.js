@@ -13,6 +13,20 @@ state.view_prototype.getRelatedList = state.model_prototype.getRelatedList = sta
     return (collectionName in this.relatedLists) ? this.relatedLists[collectionName] : null;
 };
 
+
+state.model_prototype.setStateReady = state.collection_prototype.setStateReady = function () {
+    this.morphState = 'ready';
+    return this;
+};
+
+state.collection_prototype.setAllStateReady = function () {
+    this.setStateReady();
+    if(this.models.length) {
+        this.each(m=>m.morphState = 'ready');
+    }
+    return this;
+}
+
 state.model_prototype.setStates = state.collection_prototype.setStates = function () {
     this.morphState = 'initial';
     this.relatedLists = {};
