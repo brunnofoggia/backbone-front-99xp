@@ -78,9 +78,7 @@ obj.createJsonStack = function(obj, k = '') {
 
     var json = {};
     for (let x in obj) {
-        if (typeof obj[x] === 'object') {
-            continue;
-        } else if (/^\w+$/.test(x)) {
+        if (/^\w+$/.test(x)) {
             json[x] = obj[x];
         } else {
             var y = x.match(/^(\w+)\[/)[1];
