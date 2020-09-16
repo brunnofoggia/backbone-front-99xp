@@ -1,9 +1,9 @@
 
 /**
  * Router
- * 
+ *
  * It will serve as a router that uses of bbx.locator to apply a router behavior based on name patterns
- * 
+ *
  */
 import Bb from 'backbone';
 import _ from 'underscore-99xp';
@@ -31,7 +31,8 @@ var router = new (Bb.Router.extend({
     routes: {
         "": "loadView",
     },
-    routesAliases: {},
+    routeViewAlias: {},
+    routeViewPathAlias: {},
     checkViewAccessChanged: false,
     authType: {
         public: 0,
@@ -41,24 +42,24 @@ var router = new (Bb.Router.extend({
     options: {},
     regExpRouteTemplate: '^\\\/*{{partial}}{{regexproute}}\\\/*$',
     regExpRoutes: [
-//        '(?<module>[a-zA-Z\\-]+)', 
-//        '(?<module>[a-zA-Z\\-]+)\\\/(?<id>[0-9]+)', 
+//        '(?<module>[a-zA-Z\\-]+)',
+//        '(?<module>[a-zA-Z\\-]+)\\\/(?<id>[0-9]+)',
 //        '(?<module>[a-zA-Z\\-]+)\\\/s\\\/(?<suffix>[a-zA-Z\\-]+)',
-        '(?<module>[a-zA-Z\\-]+)(\\\/s\\\/(?<suffix>[a-zA-Z\\-]+))*(\\\/(?<id>[0-9]+))*', 
+        '(?<module>[a-zA-Z\\-]+)(\\\/s\\\/(?<suffix>[a-zA-Z\\-]+))*(\\\/(?<id>[0-9]+))*',
     ],
     initialize() {
         this.route(/(.*)/, 'parseRoute');
     },
     parseRoute() {
         var data = {}, path = arguments[0];
-        
+
 //         var regexp = new RegExp ('(?<module>[a-zA-Z\\-]+)\\\/m\\\/(?<method>[a-zA-Z\\-]+)');
 //         const results = regexp.exec(path);
 
         const routes = [
             [true, this.defaultRouteLoader],
         ];
-        
+
         for(let [prefix, loader] of routes) {
             var partial = typeof prefix === 'string' ? prefix+'\\\/' : '';
             for(let x in this.regExpRoutes) {
@@ -73,16 +74,31 @@ var router = new (Bb.Router.extend({
             }
         }
     },
+    viewPath2Name(viewPath) {
+        if(!typeof viewPath === 'string') {
+            viewPath = this.formatViewPath(viewPath);
+        }
+        return viewPath.camelize();
+    },
+    formatViewPath(viewPath) {
+        return viewPath.join('-');
+    },
     setRouteData(data) {
         this.routeData = data;
 
-        var viewName = [(data.module && data.module!=='null' ? data.module : this.defaultViewName)];
-        (data.suffix) && viewName.push(data.suffix);
-        this.routeData.viewName = viewName.join('-').camelize();
+        var viewPath = [(data.module && data.module!=='null' ? data.module : this.defaultViewName)];
+        (data.suffix) && viewPath.push(data.suffix);
+        viewPath = this.formatViewPath(viewPath);
+
+        this.routeData.viewPath = viewPath;
+        this.routeData.viewName = this.viewPath2Name(this.routeData.viewPath);
         this.routeData.viewAlias = this.routeData.viewName;
-        
-        if(this.routesAliases[this.routeData.viewName]) {
-            this.routeData.viewName = this.routesAliases[this.routeData.viewName];
+
+        if(this.routeViewPathAlias[this.routeData.viewPath]) {
+            this.routeData.viewName = this.routeViewPathAlias[this.routeData.viewPath];
+        }
+        if(this.routeViewAlias[this.routeData.viewName]) {
+            this.routeData.viewName = this.routeViewAlias[this.routeData.viewName];
         }
 
         return this.routeData;
@@ -100,7 +116,7 @@ var router = new (Bb.Router.extend({
         view.prototype.modulePath = this.routeData.module;
         view.prototype.viewPath = this.routeData.path;
         view.prototype.viewAlias = this.routeData.viewAlias;
-        
+
         return view;
     },
     checkView(viewName, id=null) {
