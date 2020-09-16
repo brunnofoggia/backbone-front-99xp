@@ -40,7 +40,7 @@ var router = new (Bb.Router.extend({
         internal: 2,
     },
     options: {},
-    regExpRouteTemplate: '^\\\/*{{partial}}{{regexproute}}\\\/*$',
+    regExpRouteTemplate: '^\\\/*{{partial}}{{regexproute}}\\\/*(\\\?.*)?$',
     regExpRoutes: [
 //        '(?<module>[a-zA-Z\\-]+)',
 //        '(?<module>[a-zA-Z\\-]+)\\\/(?<id>[0-9]+)',
