@@ -1,8 +1,8 @@
-import bbx from '../backbone';
+import bbxf from '../backbone';
 
 import model from '../models/authAccess';
 
-export default bbx.collection.extend({
+export default bbxf.collection.extend({
     initialize(models=[], items=[]) {
         window.aamodel = model;
         if(typeof items === 'object')

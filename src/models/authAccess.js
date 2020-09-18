@@ -1,8 +1,8 @@
 import _ from 'underscore-99xp';
 import front from 'front-99xp';
-import bbx from '../backbone';
+import bbxf from '../backbone';
 
-export default bbx.model.extend(_.extend(_.clone(bbx.validation), {
+export default bbxf.model.extend(_.extend(_.clone(bbxf.validation), {
     idAttribute: 'path',
     titleAttribute: 'path',
     urlRoot() {

@@ -11,10 +11,11 @@
   "devDependencies": {},
   "dependencies": {
     "backbone": "^1.4.0",
+    "backbone-99xp": "github:brunnofoggia/backbone-99xp",
     "bootstrap": "^4.3.1",
+    "front-99xp": "github:brunnofoggia/front-99xp",
     "jquery": "^3.4.1",
     "jquery-mask-plugin": "^1.14.16",
-    "terser": "^4.4",
-    "validate-99xp": "^1.0.0"
+    "terser": "^4.4"
   }
 }
