@@ -2,7 +2,7 @@
   "name": "backbone-front-99xp",
   "description": "-",
   "author": "Bruno Foggia",
-  "version": "0.8.0-alpha",
+  "version": "0.8.1-alpha",
   "browser": "src/backbone.js",
   "main": "src/backbone.js",
   "module": "src/backbone.js",

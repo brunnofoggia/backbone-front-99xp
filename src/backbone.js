@@ -12,6 +12,9 @@ bbxf.collection = bbx.collection.extend();
 bbxf.model = bbx.model.extend();
 bbxf.view = bbx.view.extend();
 
+// configs
+bbxf.model.prototype['formatOnToJSON'] = true;
+
 // locator
 bbxf.locator = locator;
 for(let x in locator['model']) {
