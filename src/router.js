@@ -70,6 +70,9 @@ var router = new (Bb.Router.extend({
                 if(data !== null) {
                     data.groups.path = path;
                     return this[loader](this.setRouteData(data.groups));
+                } else if(this.routeViewPathAlias[path]) {
+                    data = {module: this.routeViewPathAlias[path], path};
+                    return this[loader](this.setRouteData(data));
                 }
             }
         }

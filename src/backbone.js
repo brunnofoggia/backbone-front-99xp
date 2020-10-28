@@ -1,3 +1,4 @@
+import _ from 'underscore-99xp';
 import bbx from 'backbone-99xp';
 import locator from './locator';
 import router from './router';
@@ -69,6 +70,7 @@ for(let x in state['view_prototype']) {
 
 // validation
 bbxf.validation = validation;
+bbxf.vmodel = bbxf.model.extend(_.extend(_.clone(bbx.validation), {}));
 
 // utils
 bbxf.utils = utils;
