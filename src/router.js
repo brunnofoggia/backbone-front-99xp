@@ -51,7 +51,9 @@ var router = new (Bb.Router.extend({
         this.route(/(.*)/, 'parseRoute');
     },
     parseRoute() {
-        var data = {}, path = arguments[0];
+        var data = {},
+            path = (typeof arguments[0] === 'string' ? arguments[0] : '').split('?')[0];
+        !path && (path = null);
 
 //         var regexp = new RegExp ('(?<module>[a-zA-Z\\-]+)\\\/m\\\/(?<method>[a-zA-Z\\-]+)');
 //         const results = regexp.exec(path);
