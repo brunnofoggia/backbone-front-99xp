@@ -1,12 +1,13 @@
 import _ from 'underscore-99xp';
 import bbx from 'backbone-99xp';
+import front from 'front-99xp';
 import locator from './locator';
 import router from './router';
 import state from './state';
 import utils from './utils';
 import validation from './validation';
 
-var bbxf = {};
+var bbxf = front;
 
 // backbone extensions
 bbxf.collection = bbx.collection.extend();
@@ -17,10 +18,11 @@ bbxf.view = bbx.view.extend();
 bbxf.model.prototype['formatOnToJSON'] = true;
 
 // locator
-bbxf.locator = locator;
 for(let x in locator['model']) {
 	bbxf.model[x] = locator['model'][x];
 }
+bbxf.locate = _.bind(bbxf.locator.find, bbxf.locator);
+bbxf.iModel = _.bind(_.partial(bbxf.locator.find, 'iModel'), bbxf.locator);
 
 for(let x in locator['model_prototype']) {
 	bbxf.model.prototype[x] = locator['model_prototype'][x];

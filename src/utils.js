@@ -4,7 +4,7 @@
 import _ from 'underscore-99xp';
 import front from 'front-99xp';
 
-var utils = {};
+var utils = _.extend({}, front.utils);
 
 utils.showView = async function(view, id=null, callback=null) {
     var viewClass = view;
