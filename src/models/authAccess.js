@@ -10,6 +10,6 @@ export default bbxf.model.extend(_.extend(_.clone(bbxf.validation), {
         return front.envUrl('auth/authorize/', true)+this.id+'?_=';
     },
     isAuthorized() {
-        return this.isReady() && this.get('authorization')===true;
+        return this.isReady()===true && this.get('authorization')===true;
     }
 })).Mark('authAccess');

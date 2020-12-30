@@ -97,7 +97,7 @@ state.view_prototype.isAllRelatedReady = state.collection_prototype.isAllRelated
     if(_.size(this.relatedLists) > 0) {
         for(let x in this.relatedLists) {
             let related = this.relatedLists[x];
-            if(!related.isReady()) {
+            if(!related.isReady()===true) {
                 this.infoRelatedReady = this.className + ' is not ready because of ' + related.className + ' ('+ x +') with state '+related.morphState;
 //                console.log(this.className + ' is not ready because of ' + related.className + ' with state '+related.morphState);
                 r = false; break;
@@ -114,11 +114,11 @@ state.collection_prototype.isAllModelsReady = function () {
         for(let x in this.models) {
             let model = this.models[x];
 //            return err.stack;
-            if(!model.isReady()) {
+            if(!model.isReady()===true) {
 //                console.log('---');
 //                console.log(model);
 //                console.log(model.attributes);
-//                console.log(model.isReady());
+//                console.log(model.isReady()===true);
 //                console.log(this.className + ' is not ready because of ' + related.className + ' with state '+related.morphState);
                 r = false; break;
             }
@@ -130,7 +130,7 @@ state.collection_prototype.isAllModelsReady = function () {
 state.view_prototype.triggerReady = state.model_prototype.triggerReady = state.collection_prototype.triggerReady = function () {
     var isReady = _.bind((this.isReady ? this.isReady : mnx.utils.isReady), this);
     
-    if(isReady()) {
+    if(isReady()===true) {
 //        console.log(this.className+' trigger ready proceed');
         this.trigger('ready');
     } else {
@@ -160,12 +160,12 @@ state.view_prototype.fetchAndStateRelatedList = state.model_prototype.fetchAndSt
     
     if('listening' in opts && !opts.listening) {
         this.listenToOnce(this.relatedLists[name], 'ready', ()=>{
-    //        console.log(name + ' triggered ready 2 ' + this.isReady());
+    //        console.log(name + ' triggered ready 2 ' + this.isReady()===true);
             this.triggerReady(name);
         });
     } else {
         this.relatedLists[name].on('ready', ()=>{
-    //        console.log(name + ' triggered ready 2 ' + this.isReady());
+    //        console.log(name + ' triggered ready 2 ' + this.isReady()===true);
             this.triggerReady(name);
         });
     }
