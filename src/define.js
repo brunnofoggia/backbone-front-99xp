@@ -72,7 +72,8 @@ for(let x in state['view_prototype']) {
 
 // validation
 bbxf.validation = validation;
-bbxf.vmodel = bbxf.model.extend(_.extend(_.clone(bbx.validation), {}));
+bbxf.vmodel = bbxf.model.extend(_.extend({}, bbxf.validation));
+// bbxf.vmodel = bbxf.model.extend(_.extend(_.clone(bbxf.validation), {}));
 
 // utils
 bbxf.utils = utils;
