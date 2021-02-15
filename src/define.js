@@ -79,12 +79,15 @@ bbxf.vmodel = bbxf.model.extend(_.extend({}, bbxf.validation));
 bbxf.utils = utils;
 
 // load view
-bbxf.loadView = async function (viewName, callback) {
+bbxf.loadView = async function (v, callback) {
+    typeof v === 'string' && (v = { viewName: v });
+    const { viewName, viewPath = '' } = v;
+
     if (typeof bbxf.importView !== 'function') {
         throw new Error('define importView first');
     }
 
-    await bbxf.importView(viewName);
+    await bbxf.importView(v);
     typeof callback === 'function' && callback(viewName);
 };
 

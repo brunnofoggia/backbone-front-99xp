@@ -20,11 +20,14 @@ utils.showView = async function (view, id = null, callback = null) {
     return viewObj;
 };
 
-utils.getView = async function (view) {
-    if (!front.locator.getListItem('view', view)) {
-        await front.importView(view);
+utils.getView = async function (v) {
+    typeof v === 'string' && (v = { viewName: v });
+    const { viewName, viewPath = '' } = v;
+
+    if (!front.locator.getListItem('view', viewName)) {
+        await front.importView(v);
     }
-    var viewClass = front.locator.getListItem('view', view);
+    var viewClass = front.locator.getListItem('view', viewName);
 
     return viewClass;
 };
