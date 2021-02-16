@@ -45,7 +45,7 @@ var router = new (Bb.Router.extend({
         //        '(?<module>[a-zA-Z\\-]+)\\\/(?<id>[0-9]+)',
         //        '(?<module>[a-zA-Z\\-]+)\\\/s\\\/(?<suffix>[a-zA-Z\\-]+)',
         '(?<module>[a-zA-Z\\-]+)(\\/s\\/(?<suffix>[a-zA-Z\\-]+))*(\\/(?<id>[0-9]+))*',
-        '(?<dir>[a-zA-Z\\-]+\\/)?(?<module>[a-zA-Z\\-]+)(\\/s\\/(?<suffix>[a-zA-Z\\-]+))*(\\/(?<id>[0-9]+))*',
+        '(?<dir>([a-zA-Z\\-]+\\/)+)?(?<module>[a-zA-Z\\-]+)(\\/s\\/(?<suffix>[a-zA-Z\\-]+))*(\\/(?<id>[0-9]+))*',
     ],
     initialize() {
         this.route(/(.*)/, 'parseRoute');
@@ -61,6 +61,11 @@ var router = new (Bb.Router.extend({
         //         const results = regexp.exec(path);
 
         const routes = [[true, this.defaultRouteLoader]];
+
+        if (path && path in this.routeViewPathAlias) {
+            data = { module: this.routeViewPathAlias[path], path };
+            return this[routes[0][1]](this.setRouteData(data));
+        }
 
         for (let [prefix, loader] of routes) {
             var partial = typeof prefix === 'string' ? prefix + '\\/' : '';
@@ -78,18 +83,16 @@ var router = new (Bb.Router.extend({
                 }
             }
         }
-
-        data = { module: this.routeViewPathAlias[path], path };
-        return routes[0][1](this.setRouteData(data));
     },
     viewPath2Name(viewPath) {
-        if (!typeof viewPath === 'string') {
-            viewPath = this.formatViewPath(viewPath);
-        }
+        viewPath = this.formatViewPath(viewPath);
         return viewPath.camelize();
     },
     formatViewPath(viewPath) {
-        return viewPath.join('-');
+        if (_.isArray(viewPath)) {
+            viewPath = viewPath.join('-');
+        }
+        return viewPath;
     },
     setRouteData(data) {
         this.routeData = data;
@@ -100,10 +103,9 @@ var router = new (Bb.Router.extend({
                 : this.defaultViewName,
         ];
         data.suffix && viewPath.push(data.suffix);
-        viewPath = this.formatViewPath(viewPath);
 
-        this.routeData.viewPath = viewPath;
-        this.routeData.viewName = this.viewPath2Name(this.routeData.viewPath);
+        this.routeData.viewName = this.viewPath2Name(viewPath);
+        this.routeData.viewPath = `${data.dir || ''}${this.routeData.viewName}`;
         this.routeData.viewAlias = this.routeData.viewName;
 
         if (this.routeViewPathAlias[this.routeData.viewPath]) {
@@ -120,25 +122,32 @@ var router = new (Bb.Router.extend({
         return this.routeData;
     },
     loadView(data) {
-        if (!front.locator.getListItem('view', data.viewName)) {
-            front.loadView(data.viewName, (vn) => this.checkView(vn, data.id));
+        if (!front.locator.getListItem('view', data.viewPath)) {
+            front.loadView(data.viewPath, (vn) => this.checkView(vn, data.id));
         } else {
-            this.checkView(data.viewName, data.id);
+            this.checkView(data.viewPath, data.id);
         }
     },
-    setNames(viewName) {
-        var view = front.locator.getListItem('view', viewName);
+    setNames(v) {
+        var view =
+            typeof v === 'string' ? front.locator.getListItem('view', v) : v;
         view.prototype.moduleName = this.routeData.module.camelize();
         view.prototype.modulePath = this.routeData.module;
-        view.prototype.viewPath = this.routeData.path;
+        // view.prototype.viewPath = this.routeData.path;
+        view.prototype.viewPath = this.routeData.viewPath;
         view.prototype.viewAlias = this.routeData.viewAlias;
 
         return view;
     },
-    checkView(viewName, id = null) {
-        var view = this.setNames(viewName);
-        checkViewAccess(viewName, id, router.getShield(viewName) || {}, () => {
-            utils.showView(viewName, id);
+    checkView(viewPath, id = null) {
+        var view = front.locator.getListItem('view', viewPath);
+        if (!view) {
+            return console.error(`no view named ${viewPath}`);
+        }
+
+        this.setNames(view);
+        checkViewAccess(viewPath, id, router.getShield(viewPath) || {}, () => {
+            utils.showView(viewPath, id);
         });
     },
     setCheckViewAccess(fn) {
