@@ -50,6 +50,13 @@ var router = new (Bb.Router.extend({
     initialize() {
         this.route(/(.*)/, 'parseRoute');
     },
+    matchAliases(path) {
+        if (path) {
+            return _.find(this.routeViewPathAlias, (i, x) => {
+                return path.replace(/\/$/, '') === x.replace(/\/$/, '');
+            });
+        }
+    },
     parseRoute() {
         var data = {},
             path = (typeof arguments[0] === 'string' ? arguments[0] : '').split(
@@ -62,8 +69,9 @@ var router = new (Bb.Router.extend({
 
         const routes = [[true, this.defaultRouteLoader]];
 
-        if (path && path in this.routeViewPathAlias) {
-            data = { module: this.routeViewPathAlias[path], path };
+        var alias = this.matchAliases(path);
+        if (alias) {
+            data = { module: alias, path };
             return this[routes[0][1]](this.setRouteData(data));
         }
 
