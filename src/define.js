@@ -91,4 +91,7 @@ bbxf.loadView = async function (v, callback) {
     typeof callback === 'function' && callback(viewPath);
 };
 
+// main app getter
+bbxf.app = () => bbxf.locator.getItem('iApp');
+
 export default bbxf;
