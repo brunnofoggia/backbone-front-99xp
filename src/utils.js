@@ -3,6 +3,8 @@
  */
 import _ from 'underscore-99xp';
 import front from 'front-99xp';
+import b64 from 'nodejs-base64';
+import crypto from 'backbone-99xp/src/formatters/crypt';
 
 var utils = _.extend({}, front.utils);
 
@@ -30,6 +32,14 @@ utils.getView = async function (v) {
     var viewClass = front.locator.getListItem('view', viewPath);
 
     return viewClass;
+};
+
+utils.encrypt = function (k, v, json = true) {
+    return b64.base64encode(crypto(v, 1, true, k));
+};
+
+utils.decrypt = function (k, v, json = true) {
+    return crypto(b64.base64decode(v), 0, true, k);
 };
 
 export default utils;
