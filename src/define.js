@@ -75,6 +75,9 @@ bbxf.validation = validation;
 bbxf.vmodel = bbxf.model.extend(_.extend({}, bbxf.validation));
 // bbxf.vmodel = bbxf.model.extend(_.extend(_.clone(bbxf.validation), {}));
 
+// format
+bbxf.format = bbx.format;
+
 // utils
 bbxf.utils = utils;
 
