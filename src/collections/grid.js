@@ -219,4 +219,16 @@ export default bbxf.collection.extend({
 
         return paginated;
     },
+    sortedFilteredResults() {
+        var filtered = this.filterResults(),
+            sorted = this.sortResults(filtered);
+
+        return sorted;
+    },
+    listResults() {
+        return this.paginate(this.sortedFilteredResults());
+    },
+    exportResults() {
+        return this.sortedFilteredResults();
+    },
 });
