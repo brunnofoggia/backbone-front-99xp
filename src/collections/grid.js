@@ -139,7 +139,7 @@ export default bbxf.collection.extend({
     },
     sortResults(r) {
         if (this.sort[0]) {
-            var cols = this.filter.cols,
+            var cols = this.cols,
                 colInfo =
                     _.findWhere(cols, {
                         name: this.sort[0],
