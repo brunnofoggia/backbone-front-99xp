@@ -34,7 +34,7 @@ export default bbxf.collection.extend({
     filterResults() {
         var r = this.models,
             cols = this.filter.cols;
-        if (this.filterOnServer) return r;
+        if (this.filterOnServer == 1) return r;
 
         if (cols && cols.length > 0) {
             for (let col of cols) {
