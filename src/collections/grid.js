@@ -10,6 +10,7 @@ export default bbxf.collection.extend({
             options.attrs = {
                 filters: this.prepareFilterValues(this.filter.toJSON()),
                 sort: {},
+                limit: this.limitOnServer || 0,
             };
             options.url = this.url();
         }
