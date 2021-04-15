@@ -87,6 +87,7 @@ export default bbxf.collection.extend({
         return r;
     },
     filterValue(o, v) {
+        if (!o) return '';
         var format = o.filterVal || ((f) => f);
         typeof v === 'undefined' && (v = this.filter.get(o.name));
         v = (v || '').trim();
