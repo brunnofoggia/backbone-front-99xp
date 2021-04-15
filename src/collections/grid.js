@@ -21,8 +21,11 @@ export default bbxf.collection.extend({
         var j = {};
         if (_.size(d) > 0) {
             for (var x in d) {
-                if (!(d[x] + '').trim() == '') {
-                    j[x] = d[x];
+                var c = _.find(this.filter.cols, (o) => o.name === x),
+                    v = this.filterValue(c, d[x]);
+
+                if (v != '') {
+                    j[x] = v;
                 } else if (this.filter.sendEmptyFilter[x] !== false) {
                     j[x] = '';
                 }
@@ -38,7 +41,7 @@ export default bbxf.collection.extend({
 
         if (cols && cols.length > 0) {
             for (let col of cols) {
-                let filterValue = this.filterValue(col.name, col),
+                let filterValue = this.filterValue(col),
                     filterValues;
                 if (filterValue) {
                     r = _.filter(r, (item) => {
@@ -83,9 +86,11 @@ export default bbxf.collection.extend({
 
         return r;
     },
-    filterValue(name, o) {
+    filterValue(o, v) {
         var format = o.filterVal || ((f) => f);
-        return format(this.filter.get(name));
+        typeof v === 'undefined' && (v = this.filter.get(o.name));
+        v = (v || '').trim();
+        return format(v);
     },
     setSort(o) {
         if (o) this.sort = o;
