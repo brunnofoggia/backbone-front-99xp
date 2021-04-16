@@ -94,10 +94,12 @@ export default bbxf.collection.extend({
         return format(v);
     },
     setSort(o) {
+        if (typeof this.sort === 'undefined') this.sort = false;
         if (o) this.sort = o;
         if (typeof this.sort === 'string')
             this.sort = this.changeSort(this.sort);
         if (this.sort === true) this.sort = ['', 'asc'];
+        return this.sort;
     },
     changeSort(colName) {
         if (this.sort[0] !== colName) {
