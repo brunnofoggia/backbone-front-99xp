@@ -46,7 +46,7 @@ export default bbxf.collection.extend({
     },
     filterResults() {
         var r = this.models,
-            cols = this.filter.cols;
+            cols = this.availableCols();
         if (this.filterOnServer == 1) return r;
 
         if (cols && cols.length > 0) {

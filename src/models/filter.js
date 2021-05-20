@@ -19,4 +19,20 @@ export default bbxf.vmodel.extend({
             this.sendEmptyFilter[col.name] = col.sendEmpty || false;
         });
     },
+    isAvailable(col) {
+        return !('available' in col) || col.available;
+    },
+    isDisplayed(col) {
+        return this.isAvailable(col) && (!('display' in col) || col.display);
+    },
+    availableCols() {
+        return _.filter(this.cols, (col) => {
+            return this.isAvailable(col);
+        });
+    },
+    displayedCols() {
+        return _.filter(this.cols, (col) => {
+            return this.isDisplayed(col);
+        });
+    },
 });
