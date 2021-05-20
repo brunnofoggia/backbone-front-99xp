@@ -17,13 +17,23 @@ export default bbxf.collection.extend({
 
         _.bind(bbxf.collection.prototype.sync, this)(method, model, options);
     },
+    isAvailable(col) {
+        return !('available' in col) || col.available;
+    },
+    availableCols() {
+        return _.filter(this.filter.cols, (col) => {
+            return this.isAvailable(col);
+        });
+    },
     prepareFilterValues(d) {
         var j = {};
         if (_.size(d) > 0) {
             for (var x in d) {
-                var c = _.find(this.filter.cols, (o) => o.name === x),
-                    v = this.filterValue(c, d[x]);
+                var c = _.find(this.availableCols(), (o) => o.name === x),
+                    v;
 
+                if (!c) continue;
+                v = this.filterValue(c, d[x]);
                 if (v != '') {
                     j[x] = v;
                 } else if (this.filter.sendEmptyFilter[x] !== false) {
