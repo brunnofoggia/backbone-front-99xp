@@ -45,7 +45,8 @@ var router = new (Bb.Router.extend({
         //        '(?<module>[a-zA-Z\\-]+)\\\/(?<id>[0-9]+)',
         //        '(?<module>[a-zA-Z\\-]+)\\\/s\\\/(?<suffix>[a-zA-Z\\-]+)',
         '(?<module>[a-zA-Z\\-]+)(\\/s\\/(?<suffix>[a-zA-Z\\-]+))*(\\/(?<id>[0-9]+))*',
-        '(?<dir>([a-zA-Z\\-]+\\/)+)?(?<module>[a-zA-Z\\-]+)(\\/s\\/(?<suffix>[a-zA-Z\\-]+))*(\\/(?<id>[0-9]+))*',
+        '(?<dir>([a-zA-Z\\-]+\\/){1})?(?<module>[a-zA-Z\\-]+)(\\/s\\/(?<suffix>[a-zA-Z\\-]+))*(\\/(?<id>[0-9]+))*',
+        '(?<dir>([a-zA-Z\\-]+\\/){2})?(?<module>[a-zA-Z\\-]+)(\\/s\\/(?<suffix>[a-zA-Z\\-]+))*(\\/(?<id>[0-9]+))*',
     ],
     initialize() {
         this.route(/(.*)/, 'parseRoute');
@@ -117,14 +118,12 @@ var router = new (Bb.Router.extend({
         this.routeData.viewAlias = this.routeData.viewName;
 
         if (this.routeViewPathAlias[this.routeData.viewPath]) {
-            this.routeData.viewName = this.routeViewPathAlias[
-                this.routeData.viewPath
-            ];
+            this.routeData.viewName =
+                this.routeViewPathAlias[this.routeData.viewPath];
         }
         if (this.routeViewAlias[this.routeData.viewName]) {
-            this.routeData.viewName = this.routeViewAlias[
-                this.routeData.viewName
-            ];
+            this.routeData.viewName =
+                this.routeViewAlias[this.routeData.viewName];
         }
 
         return this.routeData;
@@ -139,6 +138,7 @@ var router = new (Bb.Router.extend({
     setNames(v) {
         var view =
             typeof v === 'string' ? front.locator.getListItem('view', v) : v;
+        view.prototype.moduleDir = this.routeData.dir;
         view.prototype.moduleName = this.routeData.module.camelize();
         view.prototype.modulePath = this.routeData.module;
         // view.prototype.viewPath = this.routeData.path;
