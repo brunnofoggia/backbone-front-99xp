@@ -95,6 +95,6 @@ bbxf.loadView = async function (v, callback) {
 };
 
 // main app getter
-bbxf.app = () => bbxf.locator.getItem('iApp');
+bbxf.App = bbxf.app = () => bbxf.locator.getItem('iApp');
 
 export default bbxf;
