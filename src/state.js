@@ -52,6 +52,9 @@ state.model_prototype.setStates = state.collection_prototype.setStates =
             //        console.log('ready of '+this.className);
             this.triggerReady();
         });
+        this.on('error', () => {
+            this.morphState = 'error';
+        });
 
         if (this instanceof Bb.Collection) {
             this.on('add', (model) => {
@@ -109,11 +112,26 @@ state.model_prototype.isReady = function () {
     return r;
 };
 
+state.model_prototype.isWrong = function () {
+    var r =
+        (!this.id && this.morphState === 'error') ||
+        this.isAnyRelatedWrong() !== false;
+    return r;
+};
+
 state.collection_prototype.isReady = function () {
     var r =
         this.morphState === 'ready' &&
         (!this.requireReadyModels || this.isAllModelsReady()) &&
         this.isAllRelatedReady();
+    return r;
+};
+
+state.collection_prototype.isWrong = function () {
+    var r =
+        this.morphState === 'error' ||
+        (this.requireReadyModels && this.isAnyModelWrong() !== false) ||
+        this.isAnyRelatedWrong() !== false;
     return r;
 };
 
@@ -145,6 +163,34 @@ state.view_prototype.isAllRelatedReady =
             return r;
         };
 
+state.view_prototype.isAnyRelatedWrong =
+    state.collection_prototype.isAnyRelatedWrong =
+    state.model_prototype.isAnyRelatedWrong =
+        function () {
+            var r = false,
+                infoRelatedReady = [];
+            if (_.size(this.relatedLists) > 0) {
+                for (let x in this.relatedLists) {
+                    let related = this.relatedLists[x];
+                    if (!related) continue;
+                    if (related.isWrong() !== false) {
+                        infoRelatedReady.push(
+                            `${related.className} state ${related.morphState}`
+                        );
+                        //                console.log(this.className + ' is not ready because of ' + related.className + ' with state '+related.morphState);
+                        r = true;
+                    }
+                }
+                if (!r) {
+                    this.infoRelatedReady = infoRelatedReady.join(', ');
+                }
+            }
+            if (r) {
+                this.infoRelatedReady = '';
+            }
+            return r;
+        };
+
 state.collection_prototype.isAllModelsReady = function () {
     var r = true,
         infoModelsReady = [];
@@ -163,6 +209,36 @@ state.collection_prototype.isAllModelsReady = function () {
                     `${related.className} state ${related.morphState}`
                 );
                 r = false;
+            }
+        }
+        if (!r) {
+            this.infoModelsReady = infoModelsReady.join(', ');
+        }
+    }
+    if (r) {
+        this.infoModelsReady = '';
+    }
+    return r;
+};
+
+state.collection_prototype.isAnyModelWrong = function () {
+    var r = false,
+        infoModelsReady = [];
+    if (_.size(this.models) > 0) {
+        for (let x in this.models) {
+            let model = this.models[x];
+            if (!model) continue;
+            //            return err.stack;
+            if (model.isWrong() !== false) {
+                //                console.log('---');
+                //                console.log(model);
+                //                console.log(model.attributes);
+                //                console.log(model.isReady()===true);
+                //                console.log(this.className + ' is not ready because of ' + related.className + ' with state '+related.morphState);
+                infoModelsReady.push(
+                    `${related.className} state ${related.morphState}`
+                );
+                r = true;
             }
         }
         if (!r) {
