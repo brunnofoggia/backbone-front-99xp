@@ -42,6 +42,7 @@ state.model_prototype.setStates = state.collection_prototype.setStates =
     function () {
         this.morphState = 'initial';
         this.relatedLists = {};
+        this.globalLists = {};
 
         //    this.relatedState = 'initial';
         var listenState = 'sync';
@@ -67,6 +68,7 @@ state.model_prototype.setStates = state.collection_prototype.setStates =
 state.view.pretrigger_initialState = function () {
     this.morphState = 'initial';
     this.relatedLists = {};
+    this.globalLists = {};
 };
 
 state.view_prototype.pretriggers = [];
@@ -108,14 +110,14 @@ state.model_prototype.resetAllData = function () {
 
 state.model_prototype.isReady = function () {
     var r =
-        (!this.id || this.morphState === 'ready') && this.isAllRelatedReady();
+        (!this.id || this.morphState === 'ready') && this.areAllListsReady();
     return r;
 };
 
 state.model_prototype.isWrong = function () {
     var r =
         (!this.id && this.morphState === 'error') ||
-        this.isAnyRelatedWrong() !== false;
+        this.isAnyListWrong() !== false;
     return r;
 };
 
@@ -123,7 +125,7 @@ state.collection_prototype.isReady = function () {
     var r =
         this.morphState === 'ready' &&
         (!this.requireReadyModels || this.isAllModelsReady()) &&
-        this.isAllRelatedReady();
+        this.areAllListsReady();
     return r;
 };
 
@@ -131,13 +133,20 @@ state.collection_prototype.isWrong = function () {
     var r =
         this.morphState === 'error' ||
         (this.requireReadyModels && this.isAnyModelWrong() !== false) ||
-        this.isAnyRelatedWrong() !== false;
+        this.isAnyListWrong() !== false;
     return r;
 };
 
 state.view_prototype.isAllRelatedReady =
     state.collection_prototype.isAllRelatedReady =
     state.model_prototype.isAllRelatedReady =
+        function () {
+            return this.areAllListsReady();
+        };
+
+state.view_prototype.areAllListsReady =
+    state.collection_prototype.areAllListsReady =
+    state.model_prototype.areAllListsReady =
         function () {
             var r = true,
                 infoRelatedReady = [];
@@ -147,46 +156,70 @@ state.view_prototype.isAllRelatedReady =
                     if (!related) continue;
                     if (!related.isReady() === true) {
                         infoRelatedReady.push(
-                            `${related.className} state ${related.morphState}`
+                            `related: ${related.className} state ${related.morphState}`
                         );
                         //                console.log(this.className + ' is not ready because of ' + related.className + ' with state '+related.morphState);
                         r = false;
                     }
                 }
-                if (!r) {
-                    this.infoRelatedReady = infoRelatedReady.join(', ');
+            }
+            if (_.size(this.globalLists) > 0) {
+                for (let x in this.globalLists) {
+                    let related = this.globalLists[x];
+                    if (!related) continue;
+                    if (!related.isReady() === true) {
+                        infoRelatedReady.push(
+                            `global: ${related.className} state ${related.morphState}`
+                        );
+                        //                console.log(this.className + ' is not ready because of ' + related.className + ' with state '+related.morphState);
+                        r = false;
+                    }
                 }
             }
-            if (r) {
+            if (!r) {
+                this.infoRelatedReady = infoRelatedReady.join(', ');
+            } else {
                 this.infoRelatedReady = '';
             }
             return r;
         };
 
-state.view_prototype.isAnyRelatedWrong =
-    state.collection_prototype.isAnyRelatedWrong =
-    state.model_prototype.isAnyRelatedWrong =
+state.view_prototype.isAnyListWrong =
+    state.collection_prototype.isAnyListWrong =
+    state.model_prototype.isAnyListWrong =
         function () {
             var r = false,
-                infoRelatedReady = [];
+                infoRelatedWrong = [];
             if (_.size(this.relatedLists) > 0) {
                 for (let x in this.relatedLists) {
                     let related = this.relatedLists[x];
                     if (!related) continue;
                     if (related.isWrong() !== false) {
-                        infoRelatedReady.push(
-                            `${related.className} state ${related.morphState}`
+                        infoRelatedWrong.push(
+                            `related: ${related.className} state ${related.morphState}`
                         );
                         //                console.log(this.className + ' is not ready because of ' + related.className + ' with state '+related.morphState);
                         r = true;
                     }
                 }
-                if (!r) {
-                    this.infoRelatedReady = infoRelatedReady.join(', ');
+            }
+            if (_.size(this.globalLists) > 0) {
+                for (let x in this.globalLists) {
+                    let related = this.globalLists[x];
+                    if (!related) continue;
+                    if (related.isWrong() !== false) {
+                        infoRelatedWrong.push(
+                            `global: ${related.className} state ${related.morphState}`
+                        );
+                        //                console.log(this.className + ' is not ready because of ' + related.className + ' with state '+related.morphState);
+                        r = true;
+                    }
                 }
             }
             if (r) {
-                this.infoRelatedReady = '';
+                this.infoRelatedWrong = infoRelatedWrong.join(', ');
+            } else {
+                this.infoRelatedWrong = '';
             }
             return r;
         };
@@ -304,35 +337,51 @@ state.view_prototype._fetchRelatedFirst =
     state.model_prototype._fetchRelatedFirst =
     state.collection_prototype._fetchRelatedFirst =
         true;
-state.view_prototype.fetchAndStateRelatedList =
-    state.model_prototype.fetchAndStateRelatedList =
-    state.collection_prototype.fetchAndStateRelatedList =
-        function (name, opts = {}) {
-            if (!this.relatedLists[name]) return;
-            if (this.relatedLists[name].morphState === 'ready') {
+
+state.view_prototype.fetchAndStateList =
+    state.model_prototype.fetchAndStateList =
+    state.collection_prototype.fetchAndStateList =
+        function (list, name, o = {}) {
+            if (!this[list][name]) return;
+            if (this[list][name].morphState === 'ready') {
                 //        console.log(name + ' triggered ready 1');
                 return this.triggerReady();
             }
 
-            if ('listening' in opts && !opts.listening) {
-                this.listenToOnce(this.relatedLists[name], 'ready', () => {
+            if ('listening' in o && !o.listening) {
+                this.listenToOnce(this[list][name], 'ready', () => {
                     //        console.log(name + ' triggered ready 2 ' + this.isReady()===true);
                     this.triggerReady(name);
                 });
             } else {
-                this.relatedLists[name].on('ready', () => {
+                this[list][name].on('ready', () => {
                     //        console.log(name + ' triggered ready 2 ' + this.isReady()===true);
                     this.triggerReady(name);
                 });
             }
 
-            if (!this.relatedLists[name]._fetchRelatedFirst) {
+            if (!this[list][name]._fetchRelatedFirst) {
                 //        console.log(name + ' triggered ready 3');
                 return this.triggerReady();
             }
 
-            this.relatedLists[name]._fetchRelatedFirst = false;
-            this.relatedLists[name].fetch(opts);
+            this[list][name]._fetchRelatedFirst = false;
+            this[list][name].fetch(o);
+        };
+
+state.view_prototype.fetchAndStateRelatedList =
+    state.model_prototype.fetchAndStateRelatedList =
+    state.collection_prototype.fetchAndStateRelatedList =
+        function (name, o = {}) {
+            return this.fetchAndStateList('relatedLists', name, o);
+        };
+
+state.view_prototype.fetchAndStateGlobalList =
+    state.model_prototype.fetchAndStateGlobalList =
+    state.collection_prototype.fetchAndStateGlobalList =
+        function (name, o = {}) {
+            o.listening = false;
+            return this.fetchAndStateList('globalLists', name, o);
         };
 
 state.view_prototype.fetchRelatedLists =
@@ -346,6 +395,27 @@ state.view_prototype.fetchRelatedLists =
                 return true;
             }
             return false;
+        };
+
+state.view_prototype.fetchGlobalLists =
+    state.model_prototype.fetchGlobalLists =
+    state.collection_prototype.fetchGlobalLists =
+        function (opts = {}) {
+            if (_.size(this.globalLists)) {
+                for (name in this.globalLists) {
+                    this.fetchAndStateGlobalList(name, opts);
+                }
+                return true;
+            }
+            return false;
+        };
+
+state.view_prototype.fetchAllLists =
+    state.model_prototype.fetchAllLists =
+    state.collection_prototype.fetchAllLists =
+        function (opts = {}) {
+            this.fetchGlobalLists();
+            this.fetchRelatedLists();
         };
 
 export default state;
