@@ -73,7 +73,7 @@ var router = new (Bb.Router.extend({
         var alias = this.matchAliases(path);
         if (alias) {
             data = { module: alias, path };
-            return this[routes[0][1]](this.setRouteData(data));
+            return this[routes[0][1]](this.setRouteData(data, path));
         }
 
         for (let [prefix, loader] of routes) {
@@ -88,7 +88,7 @@ var router = new (Bb.Router.extend({
                 let data = regexp.exec(path);
                 if (data !== null) {
                     data.groups.path = path;
-                    return this[loader](this.setRouteData(data.groups));
+                    return this[loader](this.setRouteData(data.groups, path));
                 }
             }
         }
@@ -103,8 +103,9 @@ var router = new (Bb.Router.extend({
         }
         return viewPath;
     },
-    setRouteData(data) {
+    setRouteData(data, path) {
         this.routeData = data;
+        this.routeData.path = path === null ? '/' : path;
 
         var viewPath = [
             data.module && data.module !== 'null'
