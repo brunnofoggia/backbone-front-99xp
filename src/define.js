@@ -11,7 +11,9 @@ var bbxf = front;
 
 // backbone extensions
 bbxf.collection = bbx.collection.extend();
-bbxf.model = bbx.model.extend();
+bbxf.model = bbx.model.extend({
+    constructor: bbx.model.prototype.constructor,
+});
 bbxf.view = bbx.view.extend();
 
 // configs
@@ -72,7 +74,14 @@ for (let x in state['view_prototype']) {
 
 // validation
 bbxf.validation = validation;
-bbxf.vmodel = bbxf.model.extend(_.extend({}, bbxf.validation));
+bbxf.vmodel = bbxf.model.extend(
+    _.extend(
+        {
+            constructor: bbxf.model.prototype.constructor,
+        },
+        bbxf.validation
+    )
+);
 // bbxf.vmodel = bbxf.model.extend(_.extend(_.clone(bbxf.validation), {}));
 
 // format
