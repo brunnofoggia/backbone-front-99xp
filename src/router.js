@@ -49,7 +49,7 @@ var router = new (Bb.Router.extend({
         '(?<dir>([a-zA-Z\\-]+\\/){2})?(?<module>[a-zA-Z\\-]+)(\\/s\\/(?<suffix>[a-zA-Z\\-]+))*(\\/(?<id>[0-9]+))*',
     ],
     initialize() {
-        this.route(/(.*)/, 'parseRoute');
+        this.route(/((file\:\/\/)?.+\.html)?(.*)/, 'parseRoute');
     },
     matchAliases(path) {
         if (path) {
@@ -60,7 +60,7 @@ var router = new (Bb.Router.extend({
     },
     parseRoute() {
         var data = {},
-            path = (typeof arguments[0] === 'string' ? arguments[0] : '').split(
+            path = (typeof arguments[2] === 'string' ? arguments[2] : '').split(
                 '?'
             )[0];
         !path && (path = null);
